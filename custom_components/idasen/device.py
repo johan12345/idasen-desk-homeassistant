@@ -8,7 +8,7 @@ from bleak import BLEDevice, AdvertisementData, BleakGATTCharacteristic, BleakGA
 from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
 
 from .const import UUID_HEIGHT, UUID_COMMAND, COMMAND_UP, COMMAND_DOWN, COMMAND_STOP, COMMAND_REFERENCE_INPUT_STOP, \
-    UUID_REFERENCE_INPUT
+    UUID_REFERENCE_INPUT, COMMAND_WAKEUP
 
 _LOGGER = logging.getLogger(__name__)
 DISCONNECT_DELAY = 120
@@ -129,7 +129,12 @@ class IdasenDevice:
         finally:
             self._move_lock.release()
 
+    async def wake_up(self):
+        await self._ensure_connected()
+        await self._client.write_gatt_char(UUID_COMMAND, COMMAND_WAKEUP, response=False)
+
     async def move_to(self, target):
+        await self.wake_up()
         await self.move_stop()
         await self._move_lock.acquire()
 
