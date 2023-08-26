@@ -1,0 +1,6 @@
+.idea
+*.iml
+*.py[cod]
+venv
+.venv
+env
